@@ -2,25 +2,17 @@ jdk:
   - openjdk21
 
 install:
-  - 'export JITPACK_VER="$VERSION"'
-  - 'sdk install maven 3.9.6'
-  - 'sdk use maven 3.9.6'
-  - 'mvn -v'
-  - './gradlew --no-daemon -x test build'
+  - export JITPACK_VER="$VERSION"
+  - sdk install maven 3.9.6
+  - sdk use maven 3.9.6
+  - ./gradlew --no-daemon -x test build
 
-  # ---- PROXY publishen ----
-  - 'PROXY_JAR=$(ls proxy/build/libs/velocity-proxy-*.jar 2>/dev/null | grep -v "\-all\.jar" | head -n1 || ls proxy/build/libs/velocity-proxy-*-all.jar | head -n1)'
+  # PROXY
+  - PROXY_JAR=$(ls proxy/build/libs/velocity-proxy-*.jar 2>/dev/null | grep -v '\-all\.jar' | head -n1 || ls proxy/build/libs/velocity-proxy-*-all.jar | head -n1)
   - '[ -f "$PROXY_JAR" ] || { echo "velocity-proxy JAR not found"; exit 1; }'
-  - 'echo "Installing velocity-proxy: $PROXY_JAR as $JITPACK_VER"'
-  - 'mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$PROXY_JAR" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=velocity-proxy -Dversion="$JITPACK_VER" -Dpackaging=jar -DgeneratePom=true'
+  - mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$PROXY_JAR" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=velocity-proxy -Dversion="$JITPACK_VER" -Dpackaging=jar -DgeneratePom=true
 
-  # ---- API publishen ----
-  - 'API_JAR=$(ls api/build/libs/velocity-api-*.jar | head -n1)'
+  # API
+  - API_JAR=$(ls api/build/libs/velocity-api-*.jar | head -n1)
   - '[ -f "$API_JAR" ] || { echo "velocity-api JAR not found"; exit 1; }'
-  - 'echo "Installing velocity-api: $API_JAR as $JITPACK_VER"'
-  - 'mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$API_JAR" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=velocity-api -Dversion="$JITPACK_VER" -Dpackaging=jar -DgeneratePom=true'
-
-  # ---- Sichtprüfung ----
-  - 'REPO=$(mvn -q -DforceStdout help:evaluate -Dexpression=settings.localRepository)'
-  - 'ls -l "$REPO/com/github/EinfacheSache/Velocity/velocity-proxy/$JITPACK_VER"'
-  - 'ls -l "$REPO/com/github/EinfacheSache/Velocity/velocity-api/$JITPACK_VER"'
+  - mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$API_JAR" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=velocity-api -Dversion="$JITPACK_VER" -Dpackaging=jar -DgeneratePom=true
