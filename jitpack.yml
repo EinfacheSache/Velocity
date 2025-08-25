@@ -2,13 +2,19 @@ jdk:
   - openjdk21
 
 install:
-  - 'export JITPACK_VER="$VERSION"'                               # Commit/Tag sichern
+  - 'export JITPACK_VER="$VERSION"'  # Commit/Tag sichern (wird sonst überschrieben)
   - 'sdk install maven 3.9.6'
   - 'sdk use maven 3.9.6'
-  - './gradlew --no-daemon -x test :velocity-proxy:shadowJar'     # Shadow-JAR bauen
+  - './gradlew --no-daemon -x test :velocity-proxy:shadowJar || ./gradlew --no-daemon -x test build'
+
+  # Shadow (-all) eindeutig wählen (keine javadoc/sources)
   - 'ALL=$(ls proxy/build/libs/velocity-proxy-*-all.jar | head -n1)'
   - '[ -f "$ALL" ] || { echo "Shadow (-all) jar not found"; exit 1; }'
   - 'echo "Publishing $ALL as velocity-fat:$JITPACK_VER"'
+
+  # Ein einziges Artefakt veröffentlichen: velocity-fat
   - 'mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$ALL" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=velocity-fat -Dversion="$JITPACK_VER" -Dpackaging=jar -DgeneratePom=true'
+
+  # Sichtprüfung
   - 'REPO=$(mvn -q -DforceStdout help:evaluate -Dexpression=settings.localRepository)'
   - 'ls -l "$REPO/com/github/EinfacheSache/Velocity/velocity-fat/$JITPACK_VER"'
