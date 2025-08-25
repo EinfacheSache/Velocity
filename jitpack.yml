@@ -2,7 +2,7 @@ jdk:
   - openjdk21
 
 install:
-  # JitPack-Version (Commit/Tag) sichern – SDKMAN überschreibt sonst $VERSION
+  # JitPack-Version (Commit/Tag) sichern – SDKMAN überschreibt sonst die $VERSION
   - export JITPACK_VER="$VERSION"
 
   # Maven modernisieren (für install-file 3.1.2)
