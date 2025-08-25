@@ -2,19 +2,16 @@ jdk:
   - openjdk21
 
 install:
-  # 1) Maven neu (>=3.6.3), sonst scheitert der install-plugin
   - sdk install maven 3.9.6
   - sdk use maven 3.9.6
+  - mvn -v
 
-  # 2) Bauen (Root, damit alle Module inkl. proxy gebaut werden)
   - ./gradlew --no-daemon -x test build
 
-  # 3) Proxy-JAR wählen: zuerst "plain" JAR, sonst Shadow(-all)
   - JAR=$(ls proxy/build/libs/velocity-proxy-*.jar 2>/dev/null | grep -v '\-all\.jar' | head -n1 || ls proxy/build/libs/*-all.jar | head -n1)
-  - echo "Using $JAR"
+  - '[ -f "$JAR" ] || { echo "Proxy JAR not found"; exit 1; }'
+  - echo "Using $JAR (VERSION=${VERSION})"
 
-  # 4) In lokales Maven-Repo installieren – GAV für JitPack:
-  #    com.github.<User>.<Repo> : proxy : ${VERSION}
   - mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file \
         -Dfile="$JAR" \
         -DgroupId=com.github.EinfacheSache.Velocity \
