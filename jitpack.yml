@@ -1,27 +1,6 @@
 jdk:
   - openjdk21
 
-before_install:
-  - sdk install java 21.0.2-open
-  - sdk use java 21.0.2-open
-
 install:
-  # 1) Kompletten Build fahren (keine Subprojekt-Pfade!)
   - ./gradlew --no-daemon -x test build
-
-  # 2) Proxy-JAR finden (bevorzugt das "-all" Fat-JAR)
-  - JAR=$(ls proxy/build/libs/*-all.jar 2>/dev/null || ls proxy/build/libs/*.jar | head -n1)
-  - echo "Found proxy jar: $JAR"
-
-  # 3) In lokales Maven-Repo installieren – GAVs so,
-  #    wie JitPack sie für Multi-Module erwartet:
-  #    groupId = com.github.<USER>.<REPO>
-  #    artifactId = proxy
-  #    version = $VERSION (Commit/Tag, von JitPack bereitgestellt)
-  - mvn -q org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file \
-        -Dfile="$JAR" \
-        -DgroupId="${GROUP}.${ARTIFACT}" \
-        -DartifactId="proxy" \
-        -Dversion="${VERSION}" \
-        -Dpackaging=jar \
-        -DgeneratePom=true
+  - JAR=$(ls proxy/build/libs/*-all.jar 2>/dev/null || ls proxy/build/libs/*.jar | head -n1); echo "Using $JAR"; mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file -Dfile="$JAR" -DgroupId=com.github.EinfacheSache.Velocity -DartifactId=proxy -Dversion=${VERSION} -Dpackaging=jar -DgeneratePom=true
