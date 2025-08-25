@@ -2,20 +2,27 @@ jdk:
   - openjdk21
 
 install:
+  # Maven modernisieren
   - sdk install maven 3.9.6
   - sdk use maven 3.9.6
   - mvn -v
 
+  # WICHTIG: JitPack-Version sichern, bevor SDKMAN "VERSION" überschreibt
+  - export JITPACK_VER="$VERSION"
+
+  # Build fahren (Proxy erzeugt JAR + Shadow-JAR)
   - ./gradlew --no-daemon -x test build
 
+  # JAR wählen (plain bevorzugt, sonst -all)
   - JAR=$(ls proxy/build/libs/velocity-proxy-*.jar 2>/dev/null | grep -v '\-all\.jar' | head -n1 || ls proxy/build/libs/*-all.jar | head -n1)
   - '[ -f "$JAR" ] || { echo "Proxy JAR not found"; exit 1; }'
-  - echo "Using $JAR (VERSION=${VERSION})"
+  - echo "Installing $JAR as version $JITPACK_VER"
 
-  - mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file \
-        -Dfile="$JAR" \
-        -DgroupId=com.github.EinfacheSache.Velocity \
-        -DartifactId=proxy \
-        -Dversion=${VERSION} \
-        -Dpackaging=jar \
-        -DgeneratePom=true
+  # Ins lokale Maven-Repo installieren – GAVs im JitPack-Schema
+  - mvn -B org.apache.maven.plugins:maven-install-plugin:3.1.2:install-file
+      -Dfile="$JAR"
+      -DgroupId=com.github.EinfacheSache.Velocity
+      -DartifactId=proxy
+      -Dversion="$JITPACK_VER"
+      -Dpackaging=jar
+      -DgeneratePom=true
